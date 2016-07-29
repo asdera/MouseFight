@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Mouse Game</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <style>
+    	#image1 {
+			position:absolute;
+			border-radius: 100%;
+			background-color: blue;
+			width: 50px;
+			height: 50px;
+			text-align: center;
+		}
+
+		#image2 {
+			position:absolute;
+			border-radius: 100%;
+			background-color: red;
+			width: 50px;
+			height: 50px;
+			text-align: center;
+		}
+    </style>
+    <script>
+    	var pnum = -1;
+    	var it = false;
+    	var socket = io();
+    	socket.on('swappnum', function(msg){
+        	pnum = 3 - pnum;
+  		});
+    	socket.on('assignNum', function(msg){
+        	if (pnum === -1) {
+        		pnum = msg;
+        		if (pnum === 1) {
+        			$("#image1").append('<p style="margin:15px">1<p>');
+        		} else {
+        			$("#image2").append('<p style="margin:15px">2<p>');
+        		}
+        	}
+  		});
+    	socket.on('enemy', function(msg){
+    		if (msg.num != pnum) {
+	    		if (pnum === 1) {
+	        		$("#image2").css({left:msg.x, top:msg.y});
+	    		} else if (pnum === 2) {
+	    			$("#image1").css({left:msg.x, top:msg.y});
+	    		}
+    		}
+  		});
+    	$(document).mousemove(function(e){
+    		if (pnum === 1) {
+    			$("#image1").css({left:e.pageX - 25, top:e.pageY - 25, num: pnum});
+    		} else if (pnum === 2) {
+    			$("#image2").css({left:e.pageX - 25, top:e.pageY - 25, num: pnum});
+    		}
+    		socket.emit('change', { x:e.pageX - 25, y:e.pageY - 25, num: pnum});
+		});
+    </script>
+  </head>
+  <body>
+  	<div id="image1"></div>
+  	<div id="image2"></div>
+  </body>
+</html>
